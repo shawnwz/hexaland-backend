@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: backend-service
+  datasource:
+    url: jdbc:postgresql://postgres-e3xs6n5w.sql.tencentcdb.com:53698/dvp2p3sb?useSSL=true&prepareThreshold=0
+    username: d4pkpanggbptabd
+    password: CvcAjVvckTD9jog
+    platform: postgres
+    hikari:
+      idle-timeout: 6000000
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  jpa:
+    database: postgresql
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+server:
+  port: 10050
