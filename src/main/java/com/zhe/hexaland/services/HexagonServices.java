@@ -120,6 +120,17 @@ public class HexagonServices {
 
 
     }
+
+    public void deleteOne(String name) {
+        if(hexagonsRepository.existsByNameEquals(name)){
+            HexagonsEntity entity = hexagonsRepository.findFirstByNameEquals(name);
+            hexagonsRepository.delete(entity);
+        } else {
+            return;
+        }
+    }
+
+
     private String genName(String type, Integer row, Integer col){
         StringBuilder sb = new StringBuilder();
         sb.append(type);

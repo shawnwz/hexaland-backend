@@ -2,12 +2,14 @@ package com.zhe.hexaland.dtos;
 
 import lombok.*;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class HexagonDTO {
-    private String Name;
-    private EdgesDTO Edges;
+    private String name;
+    private Map<Integer, String> edges;
 }
