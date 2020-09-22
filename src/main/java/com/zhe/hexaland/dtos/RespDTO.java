@@ -17,4 +17,8 @@ public class RespDTO {
         return new RespDTO(200, msg, data);
     }
 
+    public static RespDTO error(String msg) {
+        return new RespDTO(500, msg, null);
+    }
+
 }

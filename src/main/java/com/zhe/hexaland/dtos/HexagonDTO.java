@@ -12,4 +12,7 @@ import java.util.Map;
 public class HexagonDTO {
     private String name;
     private Map<Integer, String> edges;
+    private Integer r;
+    private Integer c;
+    private boolean status;
 }

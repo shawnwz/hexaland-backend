@@ -6,9 +6,13 @@ import com.zhe.hexaland.repositories.HexagonsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class HexagonServices {
-
+    public static final String PREFIX = "H";
+    public static final String SEP = "_";
     @Autowired
     private HexagonsRepository hexagonsRepository;
     @Autowired
@@ -27,131 +31,104 @@ public class HexagonServices {
     public void addSingle (String neighbourName, Integer edge) {
         HexagonsEntity entity = hexagonsRepository.findFirstByNameEqualsAndStatusEquals(neighbourName, true);
         if (entity!=null) {
-            String type = null;
+
             Integer row = null, col = null;
             switch(edge){
                 case 0:
-                    if(entity.getType().equalsIgnoreCase("X")){
-                        type = "X";
-                        row = entity.getRow() + 1;
-                        col = entity.getCol();
-                    } else if (entity.getType().equalsIgnoreCase("Y")){
-                        type = "Y";
-                        row = entity.getRow() + 1;
-                        col = entity.getCol();
-                    }
+                    row = entity.getRow() - 1;
+                    col = entity.getCol();
                     break;
                 case 1:
-                    if(entity.getType().equalsIgnoreCase("X")){
-                        type = "Y";
-                        row = entity.getRow();
-                        col = entity.getCol();
-                    } else if (entity.getType().equalsIgnoreCase("Y")){
-                        type = "X";
-                        row = entity.getRow() + 1;
-                        col = entity.getCol() + 1;
-                    }
+                    row = entity.getRow() - 1;
+                    col = entity.getCol() + 1;
                     break;
                 case 2:
-                    if(entity.getType().equalsIgnoreCase("X")){
-                        type = "Y";
-                        row = entity.getRow() - 1;
-                        col = entity.getCol();
-                    } else if (entity.getType().equalsIgnoreCase("Y")){
-                        type = "X";
-                        row = entity.getRow();
-                        col = entity.getCol() + 1;
-                    }
+                    row = entity.getRow();
+                    col = entity.getCol() + 1;
                     break;
                 case 3:
-                    if(entity.getType().equalsIgnoreCase("X")){
-                        type = "X";
-                        row = entity.getRow() - 1;
-                        col = entity.getCol();
-                    } else if (entity.getType().equalsIgnoreCase("Y")){
-                        type = "Y";
-                        row = entity.getRow() - 1;
-                        col = entity.getCol();
-                    }
+                    row = entity.getRow() + 1;
+                    col = entity.getCol();
                     break;
                 case 4:
-                    if(entity.getType().equalsIgnoreCase("X")){
-                        type = "Y";
-                        row = entity.getRow() - 1;
-                        col = entity.getCol() - 1;
-                    } else if (entity.getType().equalsIgnoreCase("Y")){
-                        type = "X";
-                        row = entity.getRow();
-                        col = entity.getCol();
-                    }
+                    row = entity.getRow() + 1;
+                    col = entity.getCol() - 1;
                     break;
                 case 5:
-                    if(entity.getType().equalsIgnoreCase("X")){
-                        type = "Y";
-                        row = entity.getRow();
-                        col = entity.getCol() - 1;
-                    } else if (entity.getType().equalsIgnoreCase("Y")){
-                        type = "X";
-                        row = entity.getRow() + 1;
-                        col = entity.getCol();
-                    }
+                    row = entity.getRow();
+                    col = entity.getCol() - 1;
                     break;
                 default:
-                    type = "X";
                     row = 0;
                     col = 0;
 
             }
-            addOne(type, row, col);
+            addOne(row, col);
 
         }
     }
 
-    public void addOne(String type, Integer row, Integer col) {
-        String name = genName(type, row, col);
+    public void addOne(Integer row, Integer col) {
+        String name = genName(row, col);
         if (hexagonsRepository.existsByNameEquals(name)) {
             HexagonsEntity entity = hexagonsRepository.findFirstByNameEquals(name);
             entity.setStatus(true);
             hexagonsRepository.save(entity);
         } else {
-            HexagonsEntity entity = genEntity(type, row, col);
+            HexagonsEntity entity = genEntity(row, col);
             hexagonsRepository.save(entity);
         }
-
-
     }
 
-    public void deleteOne(String name) {
+    public void batchAdd(Integer startRow, Integer endRow, Integer startCol, Integer endCol){
+        for (Integer r = startRow; r <= endRow; r++) {
+            for (Integer c = startCol; c <= endCol; c++) {
+                addOne(r, c);
+            }
+        }
+    }
+
+    public List<HexagonDTO> getAll() {
+        List<HexagonsEntity> entities = hexagonsRepository.findAllByStatusEquals(true);
+        List<HexagonDTO> list = new ArrayList<>();
+        entities.forEach( i -> {
+                HexagonDTO hexagonDTO = hexagonDTOFactory.buildWithEntity(i);
+                list.add(hexagonDTO);
+        });
+        return list;
+    }
+
+    public boolean deleteOne(String name) {
         if(hexagonsRepository.existsByNameEquals(name)){
             HexagonsEntity entity = hexagonsRepository.findFirstByNameEquals(name);
-            hexagonsRepository.delete(entity);
+            entity.setStatus(false);
+            hexagonsRepository.save(entity);
+            return true;
         } else {
-            return;
+            return false;
         }
     }
 
 
-    private String genName(String type, Integer row, Integer col){
+    private String genName(Integer row, Integer col){
         StringBuilder sb = new StringBuilder();
-        sb.append(type);
-        sb.append("-");
+        sb.append(PREFIX);
+        sb.append(SEP);
         sb.append(String.valueOf(row));
-        sb.append("-");
+        sb.append(SEP);
         sb.append(String.valueOf(col));
         return sb.toString();
     }
 
-    private HexagonsEntity genEntity(String type, Integer row, Integer col) {
+    private HexagonsEntity genEntity(Integer row, Integer col) {
         HexagonsEntity entity = HexagonsEntity.builder()
-                .name(genName(type, row, col))
+                .name(genName(row, col))
                 .createTime(System.currentTimeMillis())
                 .status(true)
-                .type(type)
                 .row(row)
                 .col(col)
                 .build();
-        String X = "X";
-        String Y = "Y";
+
         String r = String.valueOf(row);
         String c = String.valueOf(col);
         String r_add_1 = String.valueOf(row+1);
@@ -160,54 +137,20 @@ public class HexagonServices {
         String c_sub_1 = String.valueOf(col-1);
         String edge0, edge1, edge2, edge3, edge4, edge5;
         StringBuffer sb = new StringBuffer();
-        switch(type){
-            case "X":
-                sb.delete(0, sb.length());
-                edge0 = sb.append(X).append("-").append(r_add_1).append("-").append(c).toString();
-                sb.delete(0, sb.length());
-                edge1 = sb.append(Y).append("-").append(r).append("-").append(c).toString();
-                sb.delete(0, sb.length());
-                edge2 = sb.append(Y).append("-").append(r_sub_1).append("-").append(c).toString();
-                sb.delete(0, sb.length());
-                edge3 = sb.append(X).append("-").append(r_sub_1).append("-").append(c).toString();
-                sb.delete(0, sb.length());
-                edge4 = sb.append(Y).append("-").append(r_sub_1).append("-").append(c_sub_1).toString();
-                sb.delete(0, sb.length());
-                edge5 = sb.append(Y).append("-").append(r).append("-").append(c_sub_1).toString();
-                break;
-            case "Y":
-                sb.delete(0, sb.length());
-                edge0 = sb.append(Y).append("-").append(r_add_1).append("-").append(c).toString();
-                sb.delete(0, sb.length());
-                edge1 = sb.append(X).append("-").append(r_add_1).append("-").append(c_add_1).toString();
-                sb.delete(0, sb.length());
-                edge2 = sb.append(X).append("-").append(r).append("-").append(c_add_1).toString();
-                sb.delete(0, sb.length());
-                edge3 = sb.append(Y).append("-").append(r_sub_1).append("-").append(c).toString();
-                sb.delete(0, sb.length());
-                edge4 = sb.append(X).append("-").append(r).append("-").append(c).toString();
-                sb.delete(0, sb.length());
-                edge5 = sb.append(X).append("-").append(r_add_1).append("-").append(c).toString();
-                break;
-            default:
-                edge0=null;
-                edge1=null;
-                edge2=null;
-                edge3=null;
-                edge4=null;
-                edge5=null;
 
-            entity.setEdge0(edge0);
-            entity.setEdge1(edge1);
-            entity.setEdge2(edge2);
-            entity.setEdge3(edge3);
-            entity.setEdge4(edge4);
-            entity.setEdge5(edge5);
+        sb.delete(0, sb.length());
+        edge0 = sb.append(PREFIX).append(SEP).append(r_sub_1).append(SEP).append(c).toString();
+        sb.delete(0, sb.length());
+        edge1 = sb.append(PREFIX).append(SEP).append(r_sub_1).append(SEP).append(c_add_1).toString();
+        sb.delete(0, sb.length());
+        edge2 = sb.append(PREFIX).append(SEP).append(r).append(SEP).append(c_add_1).toString();
+        sb.delete(0, sb.length());
+        edge3 = sb.append(PREFIX).append(SEP).append(r_add_1).append(SEP).append(c).toString();
+        sb.delete(0, sb.length());
+        edge4 = sb.append(PREFIX).append(SEP).append(r_add_1).append(SEP).append(c_sub_1).toString();
+        sb.delete(0, sb.length());
+        edge5 = sb.append(PREFIX).append(SEP).append(r).append(SEP).append(c_sub_1).toString();
 
-
-            return entity;
-
-        }
         entity.setEdge0(edge0);
         entity.setEdge1(edge1);
         entity.setEdge2(edge2);
@@ -218,6 +161,5 @@ public class HexagonServices {
         return entity;
 
     }
-
 
 }

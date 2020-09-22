@@ -20,6 +20,9 @@ public class HexagonDTOFactory {
         HexagonDTO hexagonDTO = HexagonDTO.builder()
                 .name(entity.getName())
                 .edges(buildEdgesByEntity(entity))
+                .r(entity.getRow())
+                .c(entity.getCol())
+                .status(entity.getStatus())
                 .build();
         return hexagonDTO;
     }
@@ -28,27 +31,27 @@ public class HexagonDTOFactory {
 
         Map<Integer, String> edgeDTOMap = new HashMap<>();
 
-        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEquals(entity.getEdge0()))){
+        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEqualsAndStatusEquals(entity.getEdge0(), true))){
             Map<Integer, String> map = new HashMap<>();
             edgeDTOMap.put(0, entity.getEdge0());
         }
-        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEquals(entity.getEdge1()))){
+        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEqualsAndStatusEquals(entity.getEdge1(), true))){
             Map<Integer, String> map = new HashMap<>();
             edgeDTOMap.put(1, entity.getEdge1());
         }
-        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEquals(entity.getEdge2()))){
+        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEqualsAndStatusEquals(entity.getEdge2(), true))){
             Map<Integer, String> map = new HashMap<>();
             edgeDTOMap.put(2, entity.getEdge2());
         }
-        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEquals(entity.getEdge3()))){
+        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEqualsAndStatusEquals(entity.getEdge3(), true))){
             Map<Integer, String> map = new HashMap<>();
             edgeDTOMap.put(3, entity.getEdge3());
         }
-        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEquals(entity.getEdge4()))){
+        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEqualsAndStatusEquals(entity.getEdge4(), true))){
             Map<Integer, String> map = new HashMap<>();
             edgeDTOMap.put(4, entity.getEdge4());
         }
-        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEquals(entity.getEdge5()))){
+        if (!StringUtils.isEmpty(hexagonsRepository.findFirstByNameEqualsAndStatusEquals(entity.getEdge5(), true))){
             Map<Integer, String> map = new HashMap<>();
             edgeDTOMap.put(5, entity.getEdge5());
         }

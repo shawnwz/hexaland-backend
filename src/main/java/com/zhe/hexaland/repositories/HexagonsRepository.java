@@ -4,6 +4,8 @@ import com.zhe.hexaland.entities.HexagonsEntity;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import java.util.List;
+
 public interface HexagonsRepository extends PagingAndSortingRepository<HexagonsEntity, Integer>, JpaSpecificationExecutor<HexagonsEntity> {
 
     HexagonsEntity findFirstByNameEqualsAndStatusEquals(String name, boolean status);
@@ -11,4 +13,6 @@ public interface HexagonsRepository extends PagingAndSortingRepository<HexagonsE
     boolean existsByNameEquals(String name);
 
     boolean existsByNameEqualsAndStatusEquals(String name, boolean status);
+
+    List<HexagonsEntity> findAllByStatusEquals(boolean status);
 }
